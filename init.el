@@ -1,4 +1,6 @@
-;; ---------------------------------------------- Configurações pessoais
+;;; package --- sumary
+;;; Commentary:
+;;; Code:
 (setq user-full-name "zDragonSK"
       user-email-address "zdragonsk@pm.me")
 
@@ -396,3 +398,4 @@
   :init
   ; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
   (add-to-list 'org-src-lang-modes '("c" . c-ts)))
+;;; init.el ends here
