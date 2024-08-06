@@ -1,6 +1,17 @@
+#+title: Emacs init.el Literate Configuration
+#+property: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+
++ Para exportar utilize ~C-c C-v t~
+
+* Configurações básicas
+~Custom.el~
+#+begin_src emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (ignore-errors (load custom-file))
+#+end_src
 
+~Backup e cache~
+#+begin_src emacs-lisp
 (defvar user-cache-directory (expand-file-name ".cache" user-emacs-directory))
 (defvar user-backup-directory (expand-file-name "backup" user-emacs-directory))
 (defvar user-autosave-directory (expand-file-name "autosave" user-emacs-directory))
@@ -12,7 +23,10 @@
       auto-save-list-file-prefix (concat user-autosave-directory ".saves-")
       tramp-backup-directory-alist `((".*" . ,user-backup-directory))
       tramp-auto-save-directory user-autosave-directory)
+#+end_src
 
+~Configurações do editor~
+#+begin_src emacs-lisp
 (prefer-coding-system 'utf-8-unix)
 (set-language-environment "UTF-8")
 (setq load-prefer-newer t
@@ -23,7 +37,10 @@
 (tool-bar-mode -1)
 (when (fboundp 'electric-pair-mode)
   (electric-pair-mode t))
+#+end_src
 
+~Binds do Emacs~
+#+begin_src emacs-lisp
 (use-package emacs
   :config
   (defun open-init-file-config ()
@@ -31,13 +48,20 @@
     (interactive)
     (find-file "~/Documents/org/roam/emacs_config.org"))
   :bind ("C-x c" . open-init-file-config))
+#+end_src
 
+~MELPA~
+#+begin_src emacs-lisp
 ;;(require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 ;;(package-initialize)
 ;;(package-refresh-contents)
+#+end_src
 
+* Configurações pacotes
+~Configuração PDF-Tools~
+#+begin_src emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -48,17 +72,27 @@
 ;; Desativar numeração de linha em modos específicos
 (dolist (mode '(pdf-view-mode-hook writeroom-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
 
+** =Org-mode=
+~Org-modern~
+#+begin_src emacs-lisp
 (use-package org-modern
   :after org
   :config
   (global-org-modern-mode))
+#+end_src
 
+~Org-agenda~
+#+begin_src emacs-lisp
 (use-package org-agenda
   :custom
   (org-agenda-files '("tasks.org"))
   (org-agenda-start-with-log-mode t))
+#+end_src
 
+~Org~
+#+begin_src emacs-lisp
 (use-package org
   :ensure t
   :custom
@@ -97,7 +131,11 @@
   ("C-c a" . org-agenda)
   ("C-c l" . org-store-link)
   ("C-c c" . org-capture))
+#+end_src
 
+** ~Org-roam~
+~Roam~
+#+begin_src emacs-lisp
 (use-package org-roam
   :ensure t
   :custom
@@ -131,7 +169,10 @@
    ("C-c n c" . org-roam-node-capture)
    ("C-c n u" . org-roam-ui-mode)
 ))
+#+end_src
 
+~Org-roam-bibitex~
+#+begin_src emacs-lisp
 (use-package org-roam-bibtex
   :ensure t
   :after (org-roam)
@@ -142,7 +183,10 @@
   (orb-process-file-keyword t)
   (orb-process-file-field t)
   (orb-attached-file-extensions '("pdf")))
+#+end_src
 
+~Org-roam-UI~
+#+begin_src emacs-lisp
 (use-package org-roam-ui
   :ensure t
   :after (org-roam)
@@ -151,14 +195,21 @@
   (org-roam-ui-follow t)
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
+#+end_src
 
+** Projectile
+#+begin_src emacs-lisp
 (use-package projectile
   :ensure t
   :init
   (projectile-mode)
   :bind-keymap
   ("C-c p" . projectile-command-map))
+#+end_src
 
+** Citar
+~Citar~
+#+begin_src emacs-lisp
 (use-package citar
   :ensure t
   :custom
@@ -179,13 +230,18 @@
     (("C-c b b" . citar-insert-citation)
      ("C-c b r" . citar-insert-reference)
      ("C-c b o" . citar-open)))
-
+#+end_src
+~Citar-embark~
+#+begin_src emacs-lisp
 (use-package citar-embark
   :after (citar embark)
   :config
   (citar-embark-mode))
 (setq global/bibliography-list '("~/.emacs.d/file.bib"))
+#+end_src
 
+~OC~
+#+begin_src emacs-lisp
 (use-package oc
   :custom
   (org-cite-insert-processor 'citar)
@@ -195,14 +251,20 @@
   (org-cite-export-processors '((latex biblatex)
 				(t csl)))
   (org-cite-csl-styles-dir "~/Documents/org/csl/"))
+#+end_src
 
+~Dependências OC~
+#+begin_src emacs-lisp
 (use-package oc-biblatex
   :after oc)
 (use-package oc-csl
   :after oc)
 (use-package oc-natbib
   :after oc)
+#+end_src
 
+~Citar-org-roam~
+#+begin_src emacs-lisp
 (use-package citar-org-roam
   :ensure t
   :after (citar org-roam)
@@ -210,7 +272,10 @@
   (citar-org-roam-mode)
   (setq citar-org-roam-note-title-template "${author} - ${title}")
   (setq citar-org-roam-capture-template-key "r"))
+#+end_src
 
+** Embark
+#+begin_src emacs-lisp
 ;; Embark
 (use-package embark
   :ensure t
@@ -225,7 +290,10 @@
   ("C-." . embark-act)
   ("C-;" . embark-dwim)
   ("C-h B" . embark-bindings))
+#+end_src
 
+** Company
+#+begin_src emacs-lisp
 (use-package company
   :ensure t
   :custom
@@ -237,7 +305,10 @@
   (company-dabbrev-other-buffers nil)
   (company-dabbrev-ignore-case nil)
   (company-dabbrev-downcase nil))
+#+end_src
 
+~Company-box~
+#+begin_src emacs-lisp
 (use-package company-box
   :ensure t
   :after company
@@ -246,17 +317,26 @@
   (company-box-show-single-candidate t)
   (company-box-backends-colors nil)
   (company-box-tooltip-limit 50))
+#+end_src
 
+** Dashboard
+#+begin_src emacs-lisp
 (use-package dashboard
   :ensure t
   :config
   (dashboard-setup-startup-hook))
+#+end_src
 
+** Editorconfig
+#+begin_src emacs-lisp
 (use-package editorconfig
   :ensure t
   :config
   (editorconfig-mode 1))
+#+end_src
 
+** Babel
+#+begin_src emacs-lisp
 (require 'ob-C)
 (use-package ob
   :custom
@@ -269,7 +349,10 @@
   :ensure t)
 (use-package ob-async
   :ensure t)
+#+end_src
 
+** Doom themes
+#+begin_src emacs-lisp
 (use-package doom-themes
   :ensure t
   :config
@@ -282,11 +365,17 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+#+end_src
 
+~Doom-modeline~
+#+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode))
+#+end_src
 
+** Evil-mode
+#+begin_src emacs-lisp
 (use-package evil
   :ensure t
   :init
@@ -294,19 +383,28 @@
   (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
+#+end_src
 
+~evil-collection~
+#+begin_src emacs-lisp
 (use-package evil-collection
   :after evil
   :ensure t
   :config
   (evil-collection-init))
+#+end_src
 
+** Wich-key
+#+begin_src emacs-lisp
 (use-package which-key
   :ensure t
   :hook (after-init . which-key-mode)
   :config
   (which-key-setup-side-window-bottom))
+#+end_src
 
+** Vertico
+#+begin_src emacs-lisp
 (use-package vertico
   :ensure t
   :init
@@ -320,7 +418,10 @@
 	("C-f" . vertico-exit)
 	:map minibuffer-local-map
 	("M-h" . backward-kill-word)))
+#+end_src
 
+~Dependências~
+#+begin_src emacs-lisp
 (use-package savehist
   :ensure t
   :init
@@ -332,7 +433,10 @@
   (marginalia-mode)
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
+#+end_src
 
+** Treemacs e dependências
+#+begin_src emacs-lisp
 (use-package treemacs
   :ensure t
   :defer t
@@ -444,3 +548,4 @@
   :after (treemacs)
   :ensure t
   :config (treemacs-set-scope-type 'Tabs))
+#+end_src
