@@ -1,11 +1,6 @@
-;;; package --- sumary
-;;; Treemacs    Tree-explorer for files
-;;; Commentary:
-;;; Code:
-;; -------------------------------------------------------- Configurações
-; Carregar custom.el
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (ignore-errors (load custom-file))
+
 (defvar user-cache-directory (expand-file-name ".cache" user-emacs-directory))
 (defvar user-backup-directory (expand-file-name "backup" user-emacs-directory))
 (defvar user-autosave-directory (expand-file-name "autosave" user-emacs-directory))
@@ -18,7 +13,6 @@
       tramp-backup-directory-alist `((".*" . ,user-backup-directory))
       tramp-auto-save-directory user-autosave-directory)
 
-;; Configurações básicas
 (prefer-coding-system 'utf-8-unix)
 (set-language-environment "UTF-8")
 (setq load-prefer-newer t
@@ -30,39 +24,239 @@
 (when (fboundp 'electric-pair-mode)
   (electric-pair-mode t))
 
-;; Binds
 (use-package emacs
   :config
   (defun open-init-file-config ()
     "Open the init.el Emacs configuration file."
     (interactive)
-    (find-file "~/.emacs.d/init.el"))
+    (find-file "~/Documents/org/roam/emacs_config.org"))
   :bind ("C-x c" . open-init-file-config))
 
-; Set up package.el to work with MELPA
 ;;(require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 ;;(package-initialize)
 ;;(package-refresh-contents)
-;; -------------------------------------------------------- Packages
-;; PDFTOOLS
+
 (use-package pdf-tools
-  :ensure t
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
   :config
   (pdf-tools-install-noverify)
   :bind
   (:map pdf-view-mode-map ("q" . #'kill-current-buffer)))
+;; Desativar numeração de linha em modos específicos
+(dolist (mode '(pdf-view-mode-hook writeroom-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; Editorconfig
+(use-package org-modern
+  :after org
+  :config
+  (global-org-modern-mode))
+
+(use-package org-agenda
+  :custom
+  (org-agenda-files '("tasks.org"))
+  (org-agenda-start-with-log-mode t))
+
+(use-package org
+  :ensure t
+  :custom
+  (org-directory (file-truename "~/Documents/org/"))
+  (org-todo-keywords '((sequence "TODO(t)" "ONGOING(o)" "WAIT(w@)" "|" "DONE(d!)" "CANCELED(c@)")
+		       (sequence "[ ](T)" "[-](O)" "[?](W)" "|" "[X](D)")
+		       (sequence "POST(p)" "|" "POSTED(P!)")
+		       (sequence "TOREAD(r)" "|" "READ(R!)")
+		       (sequence "TOLEARN(l)" "|" "LEARNED(L!)")))
+  (org-hide-emphasis-markers t)
+
+ ;; indentation
+  (org-startup-truncated t)
+  (org-startup-indented t)
+ ;; src block indentation
+  (org-src-preserve-indentation t)
+  (org-src-tab-acts-natively t)
+  (org-edit-src-content-indentation 0)
+;  ; logging
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+;;; Template
+  (org-capture-templates
+   '(("t" "Tasks")
+      ("th" "Home tasks" entry (file+olp "~/Documents/org/tasks.org" "Home")
+       "* TODO %? :home:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+      ("tf" "Finance's task" entry (file+olp "~/Documents/org/tasks.org" "Finance")
+       "* TODO %? :finance:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+      ("tc" "Cyberz's task" entry (file+olp "~/Documents/org/tasks.org" "CyberZ")
+       "* TODO %? :cyberz:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+      ("tr" "Read tasks" entry (file+olp "~/Documents/org/tasks.org" "Read")
+       "* TOREAD %? :read:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+      ("tg" "General Tasks" entry (file+olp "~/Documents/org/tasks.org" "General")
+       "* TODO %? :general:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)))
+  :bind
+  ("C-c a" . org-agenda)
+  ("C-c l" . org-store-link)
+  ("C-c c" . org-capture))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/Documents/org/roam"))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-enable)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol)
+  ;;org-roam templates
+  (setq org-roam-capture-templates
+   '(("d" "default" plain "#+filetags: :%?:"
+      :if-new (file+head "${slug}.org" "#+title: ${title}\n#+date: %U\n")
+      :unnarrowed t)
+     ("c" "documentation" plain "* index of\n- %?"
+      :if-new (file+head "${slug}.org" "#+title: ${title}\n#+date: %U\n")
+      :unarrowed t)
+     ("n" "nirvax notes" plain "- tags ::\n- source ::\n\n%?"
+      :target (file+head "nirvax/${slug}.org" "#+title: Nirvax: ${title}\n#+filetags: :nirvax:\n#+author: %n\n#+date: %U\n\n")
+      :unarrowed t)
+     ("r" "reading notes" plain "%?"
+      :target (file+head "${citar-citekey}.org" "#+title: ${note-title}\n#+created: %U\n")
+      :unarrowed t)))
+  :bind
+  ; org-roam bind
+  (("C-c n l" . org-roam-buffer-toggle)
+   ("C-c n f" . org-roam-node-find)
+   ("C-c n g" . org-roam-graph)
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n c" . org-roam-node-capture)
+   ("C-c n u" . org-roam-ui-mode)
+))
+
+(use-package org-roam-bibtex
+  :ensure t
+  :after (org-roam)
+  :hook (org-roam-mode . org-roam-bibtex-mode)
+  :custom
+  (org-roam-bibtex-preformat-keywords
+   '("=key=" "title" "file" "author" "keywords"))
+  (orb-process-file-keyword t)
+  (orb-process-file-field t)
+  (orb-attached-file-extensions '("pdf")))
+
+(use-package org-roam-ui
+  :ensure t
+  :after (org-roam)
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
+
+(use-package projectile
+  :ensure t
+  :init
+  (projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+(use-package citar
+  :ensure t
+  :custom
+  (citar-bibliography global/bibliography-list)
+  (citar-notes-paths '("~/Documents/org/roam/"))
+  (citar-open-note-function 'orb-citar-edit-note)
+  (citar-at-point-function 'embark-act)
+  ; templates
+  (citar-templates
+   '((main . "${author editor:30%sn}     ${date year issued:4}     ${title:48}")
+     (suffix . "          ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
+     (preview . "${author editor:%etal} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+     (note . "Notes on ${author editor:%etal}, ${title}")))
+  ; advices
+  (advice-add 'org-cite-insert :after #'(lambda (args)
+					              (save-excursion (left-char) (citar-org-update-prefix-suffix))))
+  :bind
+    (("C-c b b" . citar-insert-citation)
+     ("C-c b r" . citar-insert-reference)
+     ("C-c b o" . citar-open)))
+
+(use-package citar-embark
+  :after (citar embark)
+  :config
+  (citar-embark-mode))
+(setq global/bibliography-list '("~/.emacs.d/file.bib"))
+
+(use-package oc
+  :custom
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (org-cite-global-bibliography global/bibliography-list)
+  (org-cite-export-processors '((latex biblatex)
+				(t csl)))
+  (org-cite-csl-styles-dir "~/Documents/org/csl/"))
+
+(use-package oc-biblatex
+  :after oc)
+(use-package oc-csl
+  :after oc)
+(use-package oc-natbib
+  :after oc)
+
+(use-package citar-org-roam
+  :ensure t
+  :after (citar org-roam)
+  :config
+  (citar-org-roam-mode)
+  (setq citar-org-roam-note-title-template "${author} - ${title}")
+  (setq citar-org-roam-capture-template-key "r"))
+
+;; Embark
+(use-package embark
+  :ensure t
+    :hook (eldoc-documentation-functions . embark-eldoc-first-target)
+  :custom
+  (prefix-help-command #'embark-prefix-help-command)
+  (add-to-list 'display-buffer-alist
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+		 nil
+		 (window-parameters (mode-line-format . none))))
+  :bind
+  ("C-." . embark-act)
+  ("C-;" . embark-dwim)
+  ("C-h B" . embark-bindings))
+
+(use-package company
+  :ensure t
+  :custom
+  (company-minimum-prefix-length 2)
+  (company-tooltip-limit 14)
+  (company-tooltip-align-annotations t)
+  (company-require-match 'never)
+  (company-auto-commit nil)
+  (company-dabbrev-other-buffers nil)
+  (company-dabbrev-ignore-case nil)
+  (company-dabbrev-downcase nil))
+
+(use-package company-box
+  :ensure t
+  :after company
+  :hook (company-mode . company-box-mode)
+  :custom
+  (company-box-show-single-candidate t)
+  (company-box-backends-colors nil)
+  (company-box-tooltip-limit 50))
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
 (use-package editorconfig
   :ensure t
   :config
   (editorconfig-mode 1))
 
-;; Babel
 (require 'ob-C)
 (use-package ob
   :custom
@@ -71,7 +265,11 @@
 							   (rust . t)
 							   (C . t)
 							   (mermaid . t))))
-;; Tema do DOOM
+(use-package ob-rust
+  :ensure t)
+(use-package ob-async
+  :ensure t)
+
 (use-package doom-themes
   :ensure t
   :config
@@ -84,11 +282,11 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode))
 
-;; Configurando evil & carregando evil-collection
 (use-package evil
   :ensure t
   :init
@@ -96,20 +294,19 @@
   (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
+
 (use-package evil-collection
   :after evil
   :ensure t
   :config
   (evil-collection-init))
 
-;; Exibir atalhos
 (use-package which-key
   :ensure t
   :hook (after-init . which-key-mode)
   :config
   (which-key-setup-side-window-bottom))
 
-;; Completer do M-X | Vertical Completion
 (use-package vertico
   :ensure t
   :init
@@ -123,7 +320,7 @@
 	("C-f" . vertico-exit)
 	:map minibuffer-local-map
 	("M-h" . backward-kill-word)))
-;; Dependências do Vertico
+
 (use-package savehist
   :ensure t
   :init
@@ -136,7 +333,6 @@
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 
-;; Treemacs
 (use-package treemacs
   :ensure t
   :defer t
@@ -248,10 +444,3 @@
   :after (treemacs)
   :ensure t
   :config (treemacs-set-scope-type 'Tabs))
-;; -------------------------------------------------------- Languages
-;; dependências Babel
-(use-package ob-rust
-  :ensure t)
-(use-package ob-async
-  :ensure t)
-;;; init.el ends here
