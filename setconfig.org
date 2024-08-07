@@ -1,6 +1,17 @@
+#+title: Emacs init.el Literate Configuration
+#+property: header-args:emacs-lisp :tangle ~/.emacs.d/init.el
+
++ Para exportar utilize ~C-c C-v t~
+
+* Configurações básicas
+~Custom.el~
+#+begin_src emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (ignore-errors (load custom-file))
+#+end_src
 
+~Backup e cache~
+#+begin_src emacs-lisp
 (defvar user-cache-directory (expand-file-name ".cache" user-emacs-directory))
 (defvar user-backup-directory (expand-file-name "backup" user-emacs-directory))
 (defvar user-autosave-directory (expand-file-name "autosave" user-emacs-directory))
@@ -12,7 +23,10 @@
       auto-save-list-file-prefix (concat user-autosave-directory ".saves-")
       tramp-backup-directory-alist `((".*" . ,user-backup-directory))
       tramp-auto-save-directory user-autosave-directory)
+#+end_src
 
+~Configurações do editor~
+#+begin_src emacs-lisp
 (prefer-coding-system 'utf-8-unix)
 (set-language-environment "UTF-8")
 (setq load-prefer-newer t
@@ -23,7 +37,10 @@
 (tool-bar-mode -1)
 (when (fboundp 'electric-pair-mode)
   (electric-pair-mode t))
+#+end_src
 
+~Binds do Emacs~
+#+begin_src emacs-lisp
 (use-package emacs
   :config
   (defun open-init-file-config ()
@@ -31,13 +48,20 @@
     (interactive)
     (find-file "~/Documents/org/roam/emacs_config.org"))
   :bind ("C-x c" . open-init-file-config))
+#+end_src
 
+~MELPA~
+#+begin_src emacs-lisp
 ;;(require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 ;;(package-initialize)
 ;;(package-refresh-contents)
+#+end_src
 
+* Configurações pacotes
+~Configuração PDF-Tools~
+#+begin_src emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
@@ -48,17 +72,27 @@
 ;; Desativar numeração de linha em modos específicos
 (dolist (mode '(pdf-view-mode-hook writeroom-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
 
+** =Org-mode=
+~Org-modern~
+#+begin_src emacs-lisp
 (use-package org-modern
   :after org
   :config
   (global-org-modern-mode))
+#+end_src
 
+~Org-agenda~
+#+begin_src emacs-lisp
 (use-package org-agenda
   :custom
   (org-agenda-files '("tasks.org"))
   (org-agenda-start-with-log-mode t))
+#+end_src
 
+~Org~
+#+begin_src emacs-lisp
 (use-package org
   :ensure t
   :custom
@@ -84,20 +118,24 @@
   (org-capture-templates
    '(("t" "Tasks")
       ("th" "Home tasks" entry (file+olp "~/Documents/org/tasks.org" "Home")
-       "* TODO %? :home:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+       "* TODO %? :home: \nSCHEDULED: %^t\n%i" :empty-lines-after 1)
       ("tf" "Finance's task" entry (file+olp "~/Documents/org/tasks.org" "Finance")
-       "* TODO %? :finance:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+       "* TODO %? :fnc: \nSCHEDULED: %^t\n%i" :empty-lines-after 1)
       ("tc" "Cyberz's task" entry (file+olp "~/Documents/org/tasks.org" "CyberZ")
-       "* TODO %? :cyberz:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+       "* TODO %? :cbz: \nSCHEDULED: %^t\n%i" :empty-lines-after 1)
       ("tr" "Read tasks" entry (file+olp "~/Documents/org/tasks.org" "Read")
-       "* TOREAD %? :read:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)
+       "* TOREAD %? :read: \nSCHEDULED: %^t\n%i" :empty-lines-after 1)
       ("tg" "General Tasks" entry (file+olp "~/Documents/org/tasks.org" "General")
-       "* TODO %? :general:\nSCHEDULED: %^t\n%i" :empty-lines-after 1)))
+       "* TODO %? :geral: \nSCHEDULED: %^t\n%i" :empty-lines-after 1)))
   :bind
   ("C-c a" . org-agenda)
   ("C-c l" . org-store-link)
   ("C-c c" . org-capture))
+#+end_src
 
+** ~Org-roam~
+~Roam~
+#+begin_src emacs-lisp
 (use-package org-roam
   :ensure t
   :custom
@@ -131,7 +169,10 @@
    ("C-c n c" . org-roam-node-capture)
    ("C-c n u" . org-roam-ui-mode)
 ))
+#+end_src
 
+~Org-roam-bibitex~
+#+begin_src emacs-lisp
 (use-package org-roam-bibtex
   :ensure t
   :after (org-roam)
@@ -142,7 +183,10 @@
   (orb-process-file-keyword t)
   (orb-process-file-field t)
   (orb-attached-file-extensions '("pdf")))
+#+end_src
 
+~Org-roam-UI~
+#+begin_src emacs-lisp
 (use-package org-roam-ui
   :ensure t
   :after (org-roam)
@@ -151,14 +195,21 @@
   (org-roam-ui-follow t)
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
+#+end_src
 
+** Projectile
+#+begin_src emacs-lisp
 (use-package projectile
   :ensure t
   :init
   (projectile-mode)
   :bind-keymap
   ("C-c p" . projectile-command-map))
+#+end_src
 
+** Citar
+~Citar~
+#+begin_src emacs-lisp
 (use-package citar
   :ensure t
   :custom
@@ -179,13 +230,18 @@
     (("C-c b b" . citar-insert-citation)
      ("C-c b r" . citar-insert-reference)
      ("C-c b o" . citar-open)))
-
+#+end_src
+~Citar-embark~
+#+begin_src emacs-lisp
 (use-package citar-embark
   :after (citar embark)
   :config
   (citar-embark-mode))
 (setq global/bibliography-list '("~/.emacs.d/file.bib"))
+#+end_src
 
+~OC~
+#+begin_src emacs-lisp
 (use-package oc
   :custom
   (org-cite-insert-processor 'citar)
@@ -195,14 +251,20 @@
   (org-cite-export-processors '((latex biblatex)
 				(t csl)))
   (org-cite-csl-styles-dir "~/Documents/org/csl/"))
+#+end_src
 
+~Dependências OC~
+#+begin_src emacs-lisp
 (use-package oc-biblatex
   :after oc)
 (use-package oc-csl
   :after oc)
 (use-package oc-natbib
   :after oc)
+#+end_src
 
+~Citar-org-roam~
+#+begin_src emacs-lisp
 (use-package citar-org-roam
   :ensure t
   :after (citar org-roam)
@@ -210,7 +272,10 @@
   (citar-org-roam-mode)
   (setq citar-org-roam-note-title-template "${author} - ${title}")
   (setq citar-org-roam-capture-template-key "r"))
+#+end_src
 
+** Embark
+#+begin_src emacs-lisp
 ;; Embark
 (use-package embark
   :ensure t
@@ -225,9 +290,13 @@
   ("C-." . embark-act)
   ("C-;" . embark-dwim)
   ("C-h B" . embark-bindings))
+#+end_src
 
+** Company
+#+begin_src emacs-lisp
 (use-package company
   :ensure t
+  :hook (after-init . global-company-mode)
   :custom
   (company-minimum-prefix-length 2)
   (company-tooltip-limit 14)
@@ -237,7 +306,10 @@
   (company-dabbrev-other-buffers nil)
   (company-dabbrev-ignore-case nil)
   (company-dabbrev-downcase nil))
+#+end_src
 
+~Company-box~
+#+begin_src emacs-lisp
 (use-package company-box
   :ensure t
   :after company
@@ -246,17 +318,46 @@
   (company-box-show-single-candidate t)
   (company-box-backends-colors nil)
   (company-box-tooltip-limit 50))
+#+end_src
 
+** Dashboard
+Responsável por hookar um buffer ao ser iniciado. Não substitui o loader do Emacs, apenas sobrescreve uma nova janela.
+#+begin_src emacs-lisp
 (use-package dashboard
   :ensure t
   :config
-  (dashboard-setup-startup-hook))
+  (setq dashboard-banner-logo-title "Bem-vindo ao Emacs, zDragonSK!")
+  (setq dashboard-center-content t)
+  (setq dashboard-items '((recents   . 5)
+                        (projects  . 5)
+                        (agenda    . 5)))
+  (setq dashboard-vertically-center-content t)
+  (setq dashboard-display-icons-p t)     ; display icons on both GUI and terminal
+  ;(setq dashboard-icon-type 'nerd-icons) ; use `nerd-icons' package
+  (setq dashboard-icon-type 'all-the-icons)  ; use `all-the-icons' package
+  (dashboard-modify-heading-icons '((recents   . "file-text")
+                                  (projects . "file-directory") (agenda . "database")))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-switch-function 'projectile-switch-project)
+  (dashboard-setup-startup-hook)
+)
 
+(use-package nerd-icons
+  :ensure t)
+(use-package all-the-icons :ensure t)
+#+end_src
+
+** Editorconfig
+#+begin_src emacs-lisp
 (use-package editorconfig
   :ensure t
   :config
   (editorconfig-mode 1))
+#+end_src
 
+** Babel
+#+begin_src emacs-lisp
 (require 'ob-C)
 (use-package ob
   :custom
@@ -269,7 +370,10 @@
   :ensure t)
 (use-package ob-async
   :ensure t)
+#+end_src
 
+** Doom themes
+#+begin_src emacs-lisp
 (use-package doom-themes
   :ensure t
   :config
@@ -282,11 +386,17 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+#+end_src
 
+~Doom-modeline~
+#+begin_src emacs-lisp
 (use-package doom-modeline
   :ensure t
   :hook (after-init . doom-modeline-mode))
+#+end_src
 
+** Evil-mode
+#+begin_src emacs-lisp
 (use-package evil
   :ensure t
   :init
@@ -294,19 +404,28 @@
   (setq evil-want-keybinding nil)
   :config
   (evil-mode 1))
+#+end_src
 
+~evil-collection~
+#+begin_src emacs-lisp
 (use-package evil-collection
   :after evil
   :ensure t
   :config
   (evil-collection-init))
+#+end_src
 
+** Wich-key
+#+begin_src emacs-lisp
 (use-package which-key
   :ensure t
   :hook (after-init . which-key-mode)
   :config
   (which-key-setup-side-window-bottom))
+#+end_src
 
+** Vertico
+#+begin_src emacs-lisp
 (use-package vertico
   :ensure t
   :init
@@ -320,7 +439,10 @@
 	("C-f" . vertico-exit)
 	:map minibuffer-local-map
 	("M-h" . backward-kill-word)))
+#+end_src
 
+~Dependências~
+#+begin_src emacs-lisp
 (use-package savehist
   :ensure t
   :init
@@ -332,7 +454,10 @@
   (marginalia-mode)
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
+#+end_src
 
+** Treemacs e dependências
+#+begin_src emacs-lisp
 (use-package treemacs
   :ensure t
   :defer t
@@ -444,3 +569,180 @@
   :after (treemacs)
   :ensure t
   :config (treemacs-set-scope-type 'Tabs))
+#+end_src
+
+** Vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :ensure t
+  :init
+  (defun run-vterm-custom ()
+    "This function will run vterm inside the project root or in the current directory."
+    (interactive)
+    (if (projectile-project-p) (projectile-run-vterm) (vterm default-directory)))
+
+  (defun run-vterm-other-window-custom ()
+    "This function will run vterm in other window inside the project root or in the current directory."
+    (interactive)
+    (if (projectile-project-p) (projectile-run-vterm-other-window) (vterm-other-window default-directory)))
+  
+  :bind (("C-c t" . run-vterm-custom)
+	 ("C-c C-t" . run-vterm-other-window-custom)))
+#+end_src
+
+
+* Linguagens
+** Treesiter
+#+begin_src emacs-lisp
+(setq treesit-language-source-alist
+      '((rust "https://github.com/tree-sitter/tree-sitter-rust")
+	    (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+	    (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+	    (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+	    (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
+	    (make "https://github.com/alemuller/tree-sitter-make")
+	    (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+	    (python "https://github.com/tree-sitter/tree-sitter-python")
+	    (toml "https://github.com/tree-sitter/tree-sitter-toml")
+	    (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+	    (html "https://github.com/tree-sitter/tree-sitter-html")
+	    (css "https://github.com/tree-sitter/tree-sitter-css")
+	    (json "https://github.com/tree-sitter/tree-sitter-json")
+	    (c "https://github.com/tree-sitter/tree-sitter-c")
+	    (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+	    (cmake "https://github.com/uyha/tree-sitter-cmake")
+	    (org "https://github.com/milisims/tree-sitter-org")
+	    (solidity "https://github.com/JoranHonig/tree-sitter-solidity")))
+
+(use-package rust-ts-mode
+  :mode "\\.rs\\'"
+  :hook (rust-ts-mode . eglot-ensure)
+  :init
+  (add-to-list 'org-src-lang-modes '("rust" . rust-ts)))
+(use-package python-mode
+  :mode "\\.py\\'" :hook (python-ts-mode . eglot-ensure)
+  :init
+  (add-to-list 'org-src-lang-modes '("python" . python-ts))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
+(use-package html-mode :mode "\\.html\\'" :hook (html-mode . eglot-ensure))
+(use-package js-ts-mode
+  :mode "\\.js\\'"
+  :hook ((js-ts-mode . eglot-ensure)
+)
+  :init
+  (add-to-list 'major-mode-remap-alist '(javascript-mode . js-ts-mode))
+  (add-to-list 'org-src-lang-modes '("javascript" . js-ts)))
+
+(use-package typescript-ts-mode
+  :mode "\\.ts\\'"
+  :hook ((typescript-ts-mode . eglot-ensure)
+)
+  :init
+  (add-to-list 'major-mode-remap-alist '(typescript-mode . typescript-ts-mode))
+  (add-to-list 'org-src-lang-modes '("typescript" . typescript-ts)))
+
+(use-package json-ts-mode
+  :mode "\\.json\\'"
+  :hook ((json-ts-mode . eglot-ensure)
+)
+  :init
+  (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
+  (add-to-list 'org-src-lang-modes '("json" . json-ts)))
+
+(use-package tsx-ts-mode
+  :mode "\\.tsx\\'"
+  :hook ((tsx-ts-mode . eglot-ensure)
+)
+  :init
+  (add-to-list 'org-src-lang-modes '("tsx" . tsx-ts)))
+
+(use-package c-ts-mode
+  :mode "\\.c\\'"
+  :mode "\\.h\\'"
+  :hook ((c-ts-mode . eglot-ensure))
+  :init
+  ; (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'org-src-lang-modes '("c" . c-ts))
+  :config
+  (defun my-c-ts-indent-style ()
+    "Override the built-in K&R indentation style with some additional rules"
+    `(((match "case_statement" "compound_statement") parent-bol c-ts-mode-indent-offset)
+      ,@(alist-get 'k&r (c-ts-mode--indent-styles 'c))))
+  :custom
+  (c-ts-mode-indent-style #'my-c-ts-indent-style))
+
+(use-package c++-ts-mode
+  :mode "\\.cpp\\'"
+  :mode "\\.cxx\\'"
+  :mode "\\.hpp\\'"
+  :hook ((c++-ts-mode . eglot-ensure)
+)
+  :init
+  ; (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'org-src-lang-modes '("c++" . c++-ts))
+  (add-to-list 'org-src-lang-modes '("cpp" . c++-ts)))
+#+end_src
+
+** Flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flycheck-posframe
+  :ensure t
+  :after flycheck
+  :hook (flycheck-mode . flycheck-posframe-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flycheck-popup-tip
+  :ensure t
+  :after flycheck
+  :hook (flycheck-mode . flycheck-popup-tip-mode)) 
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flycheck-eglot
+  :ensure t
+  :after (eglot flycheck)
+  :hook (eglot-managed-mode . flycheck-eglot-mode))
+#+end_src
+
+** Eglot
+#+begin_src emacs-lisp
+(use-package eglot
+  :ensure t
+  :init
+  (setq eglot-sync-connect 1
+	eglot-autoshutdown t
+	eglot-auto-display-help-buffer nil)
+  :config
+  (setq eglot-stay-out-of '(flymake))
+  (setq-default eglot-workspace-configuration
+		'(:solidity (:defaultCompiler "remote"
+			     :compileUsingLocalVersion "latest"
+           		         :compileUsingLocalVersion "solc")
+		  :rust-analyzer (:procMacro (:ignored (:leptos_macro ["server"])))))
+		    ;; '((solidity
+		    ;;    (defaultCompiler . "remote")
+		    ;;    (compileUsingRemoteVersion . "latest")
+		    ;;    (compileUsingLocalVersion . "solc")))
+  (add-to-list 'eglot-server-programs
+	           '(solidity-mode . ("vscode-solidity-server" "--stdio")))
+  (add-to-list 'eglot-server-programs
+	       '((elixir-ts-mode heex-ts-mode) . ("elixir-ls"))))
+#+end_src
+
+** LSP
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :hook (markdown-mode . lsp)
+  :config
+  (require 'lsp-marksman))
+
+(add-hook 'rust-mode-hook 'eglot-ensure)
+#+end_src
