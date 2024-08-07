@@ -9,16 +9,14 @@ No Emacs usamos sequências de teclas descritas por `C-` e `M-` que são para:
 Então o comando `C-x C-c`, para sair do Emacs, é `Ctrl + x` e depois `Ctrl + c`.
 
 ### Aplicando configuração
-Após instalar o Emacs, utilize `C-x C-f` e digite o diretório de onde foi baixado o arquivo `setconfig.org`, dentro clone desse repositório. Após isso, utilize o comando `C-c C-v t` para aplicar as configurações ao arquivo `init.el`. Feche o Emacs, e abra novamente.
+Após instalar o Emacs, utilize `C-x C-f` e digite o diretório de onde foi baixado o arquivo `setconfig.org`, dentro do clone desse repositório. Procure no arquivo pelas configurações de diretórios e arquivos, caso queira modificar. Se não, apenas crie-os:
+* `~/Documents/org/roam`
+* `~/Documents/org/tasks.org`
+* `~/.emacs.d/file.bib`
+* `~/Documents/org/csl/`
+* Copie `setconfig.org` para `~/Documents/org/roam/emacs_config.org`
+* Mova `abnt.csl` para `~/Documents/org/csl/abnt.csl`.
 
-## English
-In Emacs we use key sequences described by `C-` and `M-` which are for:
-* `C-` - _Ctrl +_
-* `M-` - _Alt +_
-* `S-` - _Shift +_
-* `s-` - _Super(Windows) +_
+Baixe os LSP para as linguagens que deseja [aqui](https://github.com/joaotavora/eglot?tab=readme-ov-file#connecting-to-a-server), e pronto! Após isso, utilize o comando `C-c C-v t` para aplicar as configurações ao arquivo `init.el`. Feche o Emacs, e abra novamente.
 
-So the command `C-x C-c`, to exit Emacs, is `Ctrl + x` and then `Ctrl + c`.
-
-### Applying the configuration 
-After installing Emacs, use `C-x C-f` and enter the directory where the `setconfig.org` file was downloaded, inside the clone of this repository. After that, use the command `C-c C-v t` to apply the configurations to the `init.el` file. Close Emacs and open it again.
+## English (Coming Soon)
