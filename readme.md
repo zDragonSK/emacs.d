@@ -19,4 +19,7 @@ Após instalar o Emacs, utilize `C-x C-f` e digite o diretório de onde foi baix
 
 Baixe os LSP para as linguagens que deseja [aqui](https://github.com/joaotavora/eglot?tab=readme-ov-file#connecting-to-a-server), e pronto! Após isso, utilize o comando `C-c C-v t` para aplicar as configurações ao arquivo `init.el`. Feche o Emacs, e abra novamente.
 
+### Elcord
+Caso queira o **Elcord-mode**, eu fiz uma atualização do **Elcord** para o `ts-mode` em [Elcord-ts](https://github.com/zDragonSK/elcord-ts)
+
 ## English (Coming Soon)
